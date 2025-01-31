@@ -17,7 +17,7 @@
       <h1>T2DM Equity-Efficiency Decision Aid Tool</h1>
       <p>
         Evaluate how changing risk, efficacy, and monthly costs shape preferences for T2DM treatments 
-        under different equity-efficiency scenarios (self-focused, equal outcomes, or unequal outcomes).
+        under different equity-efficiency scenarios.
       </p>
     </header>
 
@@ -37,17 +37,16 @@
     <div id="introTab" class="tabcontent" style="display: block;">
       <h2>Introduction</h2>
       <p>
-        This tool considers three experiments:
+        This tool includes three experiments for T2DM plan preferences:
       </p>
       <ol>
-        <li><strong>Experiment 1 (Self-Focused)</strong>: only personal risk, efficacy, and cost.</li>
-        <li><strong>Experiment 2 (Equal Outcomes)</strong>: health outcomes shared equally with others who have poorer health.</li>
-        <li><strong>Experiment 3 (Unequal Outcomes)</strong>: separate risk, efficacy, and cost parameters for “others,” highlighting equity trade-offs.</li>
+        <li><strong>Experiment 1:</strong> Self-focused (only personal cost, risk, efficacy).</li>
+        <li><strong>Experiment 2:</strong> Equal outcomes with others.</li>
+        <li><strong>Experiment 3:</strong> Unequal outcomes with separate “others” attributes.</li>
       </ol>
       <p>
-        Adjust side-effect risk (%), efficacy (% chance of reaching target A1C), and monthly out-of-pocket cost 
-        ($0–1000) to see how preferences shift. The tool computes predicted plan uptake, willingness to pay for 
-        each attribute, scenario saving, and cost-benefit analysis (via QALYs).
+        By adjusting side-effect risk, efficacy, and monthly cost ($0–$1000), you can predict plan uptake, 
+        explore willingness to pay for each attribute, and conduct cost-benefit (QALY-based) analysis.
       </p>
     </div>
 
@@ -55,12 +54,12 @@
     <div id="instructionsTab" class="tabcontent">
       <h2>Instructions</h2>
       <ol>
-        <li><strong>Attributes:</strong> Review risk (0% baseline, up to 30%), efficacy (10% baseline, 50%/90%), and monthly cost (0–1000 USD).</li>
-        <li><strong>Inputs:</strong> Select an experiment. If Exp3, fill in “others” attributes too. Click “Predict Health Plan Uptake.”</li>
-        <li><strong>Predicted Uptake:</strong> Shows a radial gauge with probability of choosing the plan vs. opting out.</li>
-        <li><strong>WTP Results:</strong> Click “Show WTP Plots” for bar charts of how participants value changes in risk or efficacy.</li>
-        <li><strong>Scenarios:</strong> Save configurations, compare average WTP for risk across experiments, or export scenarios to PDF.</li>
-        <li><strong>Costs &amp; Benefits:</strong> Overviews fixed and variable cost items with QALY-based benefits, net benefit, and relevant charts.</li>
+        <li><strong>Attributes Tab:</strong> Learn about risk, efficacy, cost (0–1000). Reference levels: Risk=0%, Efficacy=10%.</li>
+        <li><strong>Inputs Tab:</strong> Select experiment (Exp3 includes “others”), set attribute levels, click “Predict Health Plan Uptake.”</li>
+        <li><strong>Predicted Health Plan Uptake Tab:</strong> Shows radial gauge of adoption probability vs. opt-out.</li>
+        <li><strong>WTP Results Tab:</strong> Generate bar charts for risk/efficacy WTP (negative = disutility, positive = willingness to pay).</li>
+        <li><strong>Scenarios Tab:</strong> Save scenario configurations, compare average WTP for risk across experiments, or export as PDF.</li>
+        <li><strong>Costs &amp; Benefits Tab:</strong> Insurance-like cost items plus QALY-based benefits and net benefit calculations.</li>
       </ol>
     </div>
 
@@ -68,6 +67,7 @@
     <div id="attributesTab" class="tabcontent">
       <h2>Key Attributes</h2>
       <div class="attributes-list">
+
         <!-- Efficacy Card -->
         <div class="attribute-card">
           <div class="attribute-icon" tabindex="0">
@@ -77,12 +77,12 @@
             </svg>
             <div class="tooltip" role="tooltip">
               <strong>Efficacy</strong>
-              <p>Chance of reaching target A1C in 6 months. Baseline 10%, or 50%/90% in scenarios.</p>
+              <p>Chance of reaching target A1C in 6 months (10% baseline, or 50%/90% as alternatives).</p>
             </div>
           </div>
           <div class="attribute-content">
             <h4>Efficacy</h4>
-            <p>Higher efficacy → better T2DM control outcomes.</p>
+            <p>Higher efficacy → stronger T2DM control outcomes.</p>
           </div>
         </div>
 
@@ -95,12 +95,12 @@
             </svg>
             <div class="tooltip" role="tooltip">
               <strong>Risk</strong>
-              <p>Probability of side effects from 0% baseline up to 30%.</p>
+              <p>Side-effect probability: 0% baseline, or 8%, 16%, 30% in scenarios.</p>
             </div>
           </div>
           <div class="attribute-content">
             <h4>Risk</h4>
-            <p>Greater side-effect risk implies higher compensation needed to accept it.</p>
+            <p>Higher risk requires more compensation to accept potential side effects.</p>
           </div>
         </div>
 
@@ -113,7 +113,7 @@
             </svg>
             <div class="tooltip" role="tooltip">
               <strong>Monthly Cost</strong>
-              <p>Ranges from $0 to $1000. Higher costs reduce the likelihood of plan uptake.</p>
+              <p>Ranges from $0 to $1000. Higher cost lowers plan adoption likelihood.</p>
             </div>
           </div>
           <div class="attribute-content">
@@ -127,7 +127,7 @@
     <!-- 4. INPUTS TAB -->
     <div id="inputsTab" class="tabcontent">
       <h2>Scenario Inputs</h2>
-      <p>Select your experiment, fill in attributes for self (and others if Exp3), then click “Predict Health Plan Uptake.”</p>
+      <p>Choose experiment, set risk &amp; efficacy for self (and for “others” if Exp3), then click “Predict Health Plan Uptake.”</p>
       <div class="form-grid">
         <div class="form-item">
           <label for="experimentSelect">Select Experiment:</label>
@@ -194,9 +194,7 @@
     <!-- 5. PREDICTED HEALTH PLAN UPTAKE TAB -->
     <div id="uptakeTab" class="tabcontent">
       <h2>Predicted Health Plan Uptake</h2>
-      <p>
-        A radial gauge illustrating the likelihood of choosing this plan over opting out.
-      </p>
+      <p>Radial gauge showing plan adoption likelihood vs. opt-out.</p>
       <canvas id="probGaugeChart" width="300" height="300"></canvas>
     </div>
 
@@ -204,8 +202,8 @@
     <div id="wtpTab" class="tabcontent">
       <h2>Willingness to Pay (WTP) Results</h2>
       <p>
-        This bar chart shows how participants value changes in risk or efficacy. 
-        Negative WTP means disutility (requiring compensation), positive WTP means willingness to pay.
+        Bar charts demonstrating how participants value changes in risk or efficacy attributes. Negative indicates disutility; 
+        positive indicates willingness to pay for improvements.
       </p>
       <div class="buttons-row">
         <button onclick="renderWTPChart()">Show WTP Plots</button>
@@ -249,11 +247,9 @@
     <div id="costsTab" class="tabcontent">
       <h2>Costs &amp; Benefits</h2>
       <p>
-        Below are insurance-like cost items for T2DM coverage. Some costs are fixed, 
-        others scale with predicted uptake. Benefits are QALYs gained (low, moderate, or high), 
-        monetized at $50,000 per QALY. Net benefit is monetized QALYs minus total costs.
+        Insurance-like cost items for T2DM coverage (some fixed, some variable). QALYs are monetized at $50,000 per QALY. 
+        Net Benefit = Monetized QALYs - Total Cost.
       </p>
-      <!-- The cost components & summary will appear here -->
       <div id="costsBenefitsResults"></div>
     </div>
 
