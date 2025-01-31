@@ -261,9 +261,39 @@ canvas {
   color: #2c3e50;
 }
 
+/* Responsive Cards for cost items (optional) */
+.cost-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 15px;
+}
+.cost-card {
+  background-color: #f7f9fc;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 15px;
+  width: calc(33.33% - 20px);
+  position: relative;
+  margin-bottom: 20px;
+}
+.cost-card h4 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 1em;
+}
+.cost-card p {
+  color: #7f8c8d;
+  font-size: 0.95em;
+  margin: 0;
+}
+
 /* RESPONSIVE DESIGN */
 @media (max-width: 992px) {
   .attribute-card {
+    width: calc(50% - 20px);
+  }
+  .cost-card {
     width: calc(50% - 20px);
   }
 }
@@ -283,6 +313,9 @@ canvas {
     flex: 1 1 100%;
   }
   .attribute-card {
+    width: 100%;
+  }
+  .cost-card {
     width: 100%;
   }
 }
