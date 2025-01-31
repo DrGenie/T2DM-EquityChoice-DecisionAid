@@ -1,12 +1,11 @@
 /****************************************************************************
  * SCRIPT.JS
- * Ensures:
- *  - Tab navigation
- *  - Sliders labeled
- *  - Probability gauge
- *  - WTP bar charts
- *  - Scenario saving & PDF
- *  - Cost & benefits displayed (fallback if no scenario or uptake=0)
+ * 1) Tab navigation (keeps tabs active)
+ * 2) Range slider labels
+ * 3) Probability gauge
+ * 4) WTP bar charts
+ * 5) Scenario saving + PDF
+ * 6) Cost & benefits always show items
  ****************************************************************************/
 
 let currentUptakeProbability = 0;
@@ -25,13 +24,13 @@ function openTab(tabId, btn) {
   document.getElementById(tabId).style.display = "block";
   btn.classList.add("active");
 
-  // If user clicks "Costs & Benefits", call renderCostsBenefits
+  // Always refresh cost-benefit on that tab
   if (tabId === "costsTab") {
     renderCostsBenefits();
   }
 }
 
-/** RANGE SLIDER LABELS */
+/** SLIDER LABELS */
 function updateCostDisplay(val) {
   document.getElementById("costValue").textContent = `$${val}`;
 }
@@ -39,7 +38,7 @@ function updateCostOthersDisplay(val) {
   document.getElementById("costOthersValue").textContent = `$${val}`;
 }
 
-/** MODEL COEFFICIENTS (Exp3 cost approx. -0.001 & -0.0004) */
+/** MODEL COEFFICIENTS: Exp3 cost approx. -0.001 & costOthers -0.0004 */
 const coefficients = {
   '1': {
     ASC_optout: -0.553,
@@ -79,7 +78,7 @@ const coefficients = {
   }
 };
 
-/** WTP DATA (Exp3 with cost = -0.001 for risk & efficacy) */
+/** WTP DATA: Exp3 cost = -0.001 for risk & efficacy */
 const wtpData = {
   '1': [
     { attribute: "Efficacy 50%", wtp: 0.855 / 0.00123, pVal: 0.000, se: 0.074 / 0.00123 },
@@ -113,7 +112,7 @@ const wtpData = {
   ]
 };
 
-/** PREDICT UPTAKE (Radial Gauge) */
+/** PREDICT UPTAKE: Radial Gauge */
 function predictUptake() {
   const scenario = buildScenarioFromInputs();
   if (!scenario) return;
@@ -140,10 +139,10 @@ function computeGaugeProbability(scenario) {
   if (scenario.risk === '8')  utility += coefs.risk_8;
   if (scenario.risk === '16') utility += coefs.risk_16;
   if (scenario.risk === '30') utility += coefs.risk_30;
-  // Cost (Self)
+  // Cost
   utility += coefs.cost * scenario.cost;
 
-  // Exp3
+  // Exp3: others
   if (exp === '3') {
     if (scenario.efficacyOthers === '50') utility += coefs.efficacyOthers_50;
     if (scenario.efficacyOthers === '90') utility += coefs.efficacyOthers_90;
@@ -160,8 +159,8 @@ function computeGaugeProbability(scenario) {
 
   displayGauge(prob);
   alert(`Predicted Probability: ${prob.toFixed(2)}%. ${
-    prob < 30 ? "Low uptake. Reduce cost or improve efficacy." :
-    prob < 70 ? "Moderate uptake. Further improvements may help." :
+    prob < 30 ? "Low uptake. Consider reducing cost or boosting efficacy." :
+    prob < 70 ? "Moderate uptake. Additional improvements may help." :
                 "High uptake. Maintaining these attributes is recommended."
   }`);
 }
@@ -238,7 +237,6 @@ function buildScenarioFromInputs() {
     if (!riskOthers) missing.push("Risk (Others)");
     if (isNaN(costOthers)) missing.push("Cost (Others)");
   }
-
   if (missing.length > 0) {
     alert(`Please provide: ${missing.join(", ")}`);
     return null;
@@ -305,9 +303,10 @@ function loadSavedResults() {
 
 function toggleExperimentAttributes() {
   const exp = document.getElementById("experimentSelect").value;
-  document.getElementById("efficacyOthersDiv").style.display = (exp === '3') ? 'block' : 'none';
-  document.getElementById("riskOthersDiv").style.display = (exp === '3') ? 'block' : 'none';
-  document.getElementById("costOthersDiv").style.display = (exp === '3') ? 'block' : 'none';
+  const isExp3 = (exp === '3');
+  document.getElementById("efficacyOthersDiv").style.display = isExp3 ? 'block' : 'none';
+  document.getElementById("riskOthersDiv").style.display = isExp3 ? 'block' : 'none';
+  document.getElementById("costOthersDiv").style.display = isExp3 ? 'block' : 'none';
 }
 
 /** EXPORT SCENARIOS */
@@ -324,7 +323,7 @@ function exportToPDF() {
   let currentY = 15;
 
   doc.setFontSize(16);
-  doc.text("T2DM Enhanced Equity-Efficiency - Scenarios", pageWidth / 2, currentY, { align: "center" });
+  doc.text("T2DM Equity-Efficiency - Scenarios", pageWidth / 2, currentY, { align: "center" });
   currentY += 10;
 
   savedResults.forEach((item, idx) => {
@@ -391,8 +390,8 @@ function renderWTPChart() {
       datasets: [{
         label: "WTP (USD)",
         data: values,
-        backgroundColor: values.map(v => v >= 0 ? "rgba(52,152,219,0.6)" : "rgba(231,76,60,0.6)"),
-        borderColor: values.map(v => v >= 0 ? "rgba(52,152,219,1)" : "rgba(231,76,60,1)"),
+        backgroundColor: values.map(v => (v >= 0 ? "rgba(52,152,219,0.6)" : "rgba(231,76,60,0.6)")),
+        borderColor: values.map(v => (v >= 0 ? "rgba(52,152,219,1)" : "rgba(231,76,60,1)")),
         borderWidth: 1
       }]
     },
@@ -437,6 +436,7 @@ function renderWTPChart() {
             const bottomY = y.getPixelForValue(val - se);
             ctx.moveTo(centerX, topY);
             ctx.lineTo(centerX, bottomY);
+            // top & bottom whiskers
             ctx.moveTo(centerX - 4, topY);
             ctx.lineTo(centerX + 4, topY);
             ctx.moveTo(centerX - 4, bottomY);
@@ -450,12 +450,12 @@ function renderWTPChart() {
   });
 
   document.getElementById("wtpConclusion").innerHTML = `
-    <strong>Note:</strong> Negative WTP indicates a disutility requiring compensation; 
+    <strong>Note:</strong> Negative WTP indicates disutility requiring compensation; 
     positive WTP indicates willingness to pay for that attribute improvement.
   `;
 }
 
-/** WTP COMPARISON FOR RISK */
+/** WTP COMPARISON (Risk) */
 let wtpComparisonChartInstance = null;
 function renderWTPComparison() {
   if (savedResults.length < 1) {
@@ -481,7 +481,6 @@ function renderWTPComparison() {
     const eNum = eName.split(" ")[1];
     const dataArr = wtpData[eNum];
     if (!dataArr) return;
-
     dataArr.forEach(item => {
       if (!item.attribute.toLowerCase().includes("risk")) return;
       if (eName === "Experiment 1") {
@@ -560,7 +559,7 @@ function renderWTPComparison() {
 let costsChartInstance = null;
 let benefitsChartInstance = null;
 
-/** More insurance-like cost components */
+/** Updated insurance-like cost components */
 const costComponents = [
   { item: "Plan Administration & Management", totalCost: 4000.00 },
   { item: "Chronic Disease Management Fee",   totalCost: 2000.00 },
@@ -583,7 +582,7 @@ function renderCostsBenefits() {
   const scn = buildScenarioFromInputs() || null;
   let uptake = currentUptakeProbability;
   if (!scn) {
-    // fallback if no scenario or no predicted uptake
+    // fallback scenario or 0 uptake if nothing valid
     uptake = 0;
   }
   const fraction = uptake / 100;
@@ -591,15 +590,15 @@ function renderCostsBenefits() {
   let totalCost = 0;
   costComponents.forEach(c => totalCost += c.totalCost);
 
-  // apply fraction to all except "Plan Administration & Management"
+  // apply fraction to all except "Plan Administration & Management" as an example
   costComponents.forEach(c => {
     if (c.item !== "Plan Administration & Management") {
       totalCost += c.totalCost * fraction;
     }
   });
 
-  const scenarioSel = document.getElementById("qalySelect").value || "moderate";
-  const qalyGain = QALY_SCENARIOS[scenarioSel];
+  const scenarioSel = document.getElementById("qalySelect") ? document.getElementById("qalySelect").value : "moderate";
+  const qalyGain = QALY_SCENARIOS[scenarioSel] || 0.05;
   const participants = Math.round(701 * fraction);
   const totalQALY = participants * qalyGain;
   const monetizedBenefits = totalQALY * VALUE_PER_QALY;
@@ -608,7 +607,7 @@ function renderCostsBenefits() {
   const cont = document.getElementById("costsBenefitsResults");
   cont.innerHTML = "";
 
-  // 1) display cost items as "cards"
+  // Display cost items as cards
   const cardsDiv = document.createElement("div");
   cardsDiv.className = "cost-cards";
 
@@ -623,7 +622,7 @@ function renderCostsBenefits() {
   });
   cont.appendChild(cardsDiv);
 
-  // 2) summary in a "calculation-info" block
+  // Summary block
   const summaryDiv = document.createElement("div");
   summaryDiv.className = "calculation-info";
   summaryDiv.innerHTML = `
@@ -637,7 +636,7 @@ function renderCostsBenefits() {
   `;
   cont.appendChild(summaryDiv);
 
-  // 3) cost & benefit bar charts
+  // cost & benefits chart
   const chartDiv = document.createElement("div");
   chartDiv.className = "chart-grid";
 
@@ -653,11 +652,9 @@ function renderCostsBenefits() {
 
   cont.appendChild(chartDiv);
 
-  // Chart 1: Cost
+  // Chart 1: cost
   const ctxCost = document.getElementById("costChart").getContext("2d");
-  if (costsChartInstance) {
-    costsChartInstance.destroy();
-  }
+  if (costsChartInstance) costsChartInstance.destroy();
   costsChartInstance = new Chart(ctxCost, {
     type: "bar",
     data: {
@@ -686,11 +683,9 @@ function renderCostsBenefits() {
     }
   });
 
-  // Chart 2: Monetised Benefits
+  // Chart 2: benefits
   const ctxBenefit = document.getElementById("benefitChart").getContext("2d");
-  if (benefitsChartInstance) {
-    benefitsChartInstance.destroy();
-  }
+  if (benefitsChartInstance) benefitsChartInstance.destroy();
   benefitsChartInstance = new Chart(ctxBenefit, {
     type: "bar",
     data: {
@@ -720,7 +715,7 @@ function renderCostsBenefits() {
   });
 }
 
-/** On load, reset scenarios & attach events */
+/** On page load */
 window.addEventListener("load", () => {
   loadSavedResults();
   document.getElementById("experimentSelect").addEventListener("change", toggleExperimentAttributes);
