@@ -260,8 +260,6 @@ canvas {
   margin-bottom: 10px;
   color: #2c3e50;
 }
-
-/* Responsive Cards for cost items (optional) */
 .cost-cards {
   display: flex;
   flex-wrap: wrap;
@@ -312,9 +310,7 @@ canvas {
   .chart-box {
     flex: 1 1 100%;
   }
-  .attribute-card {
-    width: 100%;
-  }
+  .attribute-card,
   .cost-card {
     width: 100%;
   }
